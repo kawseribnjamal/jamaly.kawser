@@ -1,86 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>File Manager | Kawser Portal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Files Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <nav class="bg-blue-600 text-white px-6 py-4 flex justify-between items-center">
-    <h1 class="text-xl font-bold">📁 My Files</h1>
-    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">Logout</button>
-  </nav>
+<body class="bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 min-h-screen flex flex-col items-center py-10">
 
-  <main class="p-6">
-    <div class="mb-6">
-      <input type="file" id="fileInput" class="mb-2">
-      <button onclick="uploadFile()" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Upload File</button>
-    </div>
-    <h2 class="text-lg font-semibold mb-2">Uploaded Files</h2>
-    <ul id="fileList" class="space-y-2"></ul>
-  </main>
+  <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full">
+    <h1 class="text-3xl font-bold mb-6 text-center text-purple-700">📁 Manage Files</h1>
+
+    <input type="file" id="fileInput" class="mb-4 w-full p-3 border rounded-xl" />
+    <button id="uploadBtn" class="w-full bg-purple-600 text-white py-3 rounded-xl hover:bg-purple-700 mb-6">Upload File</button>
+
+    <h2 class="text-xl font-semibold mb-4">Your Files:</h2>
+    <ul id="filesList" class="space-y-3 max-h-72 overflow-auto"></ul>
+
+    <button id="logoutBtn" class="mt-6 w-full bg-red-600 text-white py-3 rounded-xl hover:bg-red-700">Logout</button>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
 
   <script src="firebase.js"></script>
+
   <script>
-    let currentUser;
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
 
-    auth.onAuthStateChanged(user => {
-      if (!user) return window.location.href = "index.html";
-      currentUser = user;
-      listFiles();
-    });
+      const storageRef = storage.ref();
+      const userFolderRef = storageRef.child('uploads/' + user.uid);
 
-    function logout() {
-      auth.signOut().then(() => window.location.href = "index.html");
-    }
+      // Upload file
+      document.getElementById('uploadBtn').onclick = () => {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        if (!file) return alert('⚠️ Please select a file to upload.');
 
-    function uploadFile() {
-      const file = document.getElementById("fileInput").files[0];
-      if (!file) return alert("Please choose a file.");
+        const fileRef = userFolderRef.child(file.name);
+        fileRef.put(file)
+          .then(() => {
+            alert('✅ File uploaded successfully!');
+            fileInput.value = '';
+            listFiles();
+          })
+          .catch(err => alert('❌ Upload failed: ' + err.message));
+      };
 
-      const storageRef = firebase.storage().ref(`users/${currentUser.uid}/${file.name}`);
-      storageRef.put(file).then(() => {
-        alert("✅ File uploaded successfully");
-        listFiles();
-      }).catch(err => alert("❌ " + err.message));
-    }
+      // List files
+      async function listFiles() {
+        const listRef = userFolderRef;
+        const filesList = document.getElementById('filesList');
+        filesList.innerHTML = 'Loading...';
 
-    function listFiles() {
-      const fileList = document.getElementById("fileList");
-      fileList.innerHTML = "Loading...";
-      const userFolder = firebase.storage().ref(`users/${currentUser.uid}/`);
+        try {
+          const res = await listRef.listAll();
+          filesList.innerHTML = '';
 
-      userFolder.listAll()
-        .then(result => {
-          fileList.innerHTML = "";
-          if (result.items.length === 0) {
-            fileList.innerHTML = "<li class='text-gray-500'>No files found.</li>";
+          if (res.items.length === 0) {
+            filesList.innerHTML = '<li>No files uploaded yet.</li>';
+            return;
           }
-          result.items.forEach(fileRef => {
-            fileRef.getDownloadURL().then(url => {
-              const li = document.createElement("li");
-              li.className = "flex justify-between bg-white shadow p-3 rounded";
-              li.innerHTML = `
-                <a href="${url}" target="_blank" class="text-blue-600 underline">${fileRef.name}</a>
-                <button onclick="deleteFile('${fileRef.name}')" class="text-red-500 hover:underline">Delete</button>
-              `;
-              fileList.appendChild(li);
-            });
-          });
-        });
-    }
 
-    function deleteFile(filename) {
-      if (!confirm("Are you sure to delete this file?")) return;
-      const ref = firebase.storage().ref(`users/${currentUser.uid}/${filename}`);
-      ref.delete()
-        .then(() => {
-          alert("✅ File deleted successfully");
-          listFiles();
-        })
-        .catch(error => alert("❌ " + error.message));
-    }
+          res.items.forEach(async itemRef => {
+            const url = await itemRef.getDownloadURL();
+            const li = document.createElement('li');
+            li.className = 'flex justify-between items-center bg-gray-100 rounded p-2';
+
+            li.innerHTML = `
+              <a href="${url}" target="_blank" class="text-blue-600 hover:underline truncate max-w-xs">${itemRef.name}</a>
+              <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Delete</button>
+            `;
+
+            li.querySelector('button').onclick = () => {
+              if (confirm(`Are you sure to delete "${itemRef.name}"?`)) {
+                itemRef.delete()
+                  .then(() => {
+                    alert('✅ File deleted.');
+                    listFiles();
+                  })
+                  .catch(err => alert('❌ Delete failed: ' + err.message));
+              }
+            };
+
+            filesList.appendChild(li);
+          });
+        } catch (error) {
+          filesList.innerHTML = '<li>Error loading files.</li>';
+          alert('❌ ' + error.message);
+        }
+      }
+
+      listFiles();
+
+      // Logout
+      document.getElementById('logoutBtn').onclick = () => {
+        auth.signOut().then(() => {
+          window.location.href = 'index.html';
+        });
+      };
+    });
   </script>
 </body>
 </html>
