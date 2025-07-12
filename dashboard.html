@@ -1,44 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | Kawser Secure Portal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gray-50 min-h-screen font-sans">
-  <nav class="bg-purple-700 text-white px-6 py-4 flex justify-between items-center">
-    <h1 class="text-xl font-bold">📊 Dashboard</h1>
-    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">Logout</button>
-  </nav>
+<body class="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 min-h-screen flex flex-col items-center py-10">
 
-  <main class="p-6">
-    <h2 class="text-2xl font-semibold mb-4">Welcome, <span id="userEmail"></span>!</h2>
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <a href="profile.html" class="bg-white shadow p-6 rounded-xl hover:shadow-lg">👤 View/Edit Profile</a>
-      <a href="files.html" class="bg-white shadow p-6 rounded-xl hover:shadow-lg">📁 Manage Files</a>
-      <a href="admin.html" id="adminLink" class="bg-white shadow p-6 rounded-xl hover:shadow-lg hidden">🛠️ Admin Panel</a>
+  <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full">
+    <h1 class="text-3xl font-bold mb-6 text-center text-indigo-700">Welcome to Dashboard</h1>
+    <div id="user-info" class="mb-6 text-gray-700"></div>
+    <div class="flex justify-between">
+      <button id="profileBtn" class="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700">Profile</button>
+      <button id="logoutBtn" class="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700">Logout</button>
     </div>
-  </main>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
 
   <script src="firebase.js"></script>
+
   <script>
-    auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(async user => {
       if (!user) {
-        window.location.href = "index.html";
-      } else {
-        document.getElementById("userEmail").innerText = user.email;
-        if (user.uid === "cNux5HnalhZ9wj6uPDXDA8B6EE02") {
-          document.getElementById("adminLink").classList.remove("hidden");
+        // Not logged in, redirect to login page
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Fetch user info from Firestore
+      try {
+        const docRef = db.collection('users').doc(user.uid);
+        const docSnap = await docRef.get();
+
+        if (!docSnap.exists) {
+          document.getElementById('user-info').innerText = 'User data not found!';
+          return;
         }
+
+        const data = docSnap.data();
+        document.getElementById('user-info').innerHTML = `
+          <p><strong>Name:</strong> ${data.firstName} ${data.lastName}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>Gender:</strong> ${data.gender}</p>
+          <p><strong>DOB:</strong> ${data.dob}</p>
+          <p><strong>Phone:</strong> ${data.phone}</p>
+        `;
+
+        // Check if admin
+        if (user.uid === 'cNux5HnalhZ9wj6uPDXDA8B6EE02') {
+          // Add Admin Panel button
+          const adminBtn = document.createElement('button');
+          adminBtn.textContent = 'Admin Panel';
+          adminBtn.className = 'bg-yellow-600 text-white px-6 py-3 rounded-xl hover:bg-yellow-700 ml-4';
+          adminBtn.onclick = () => window.location.href = 'admin.html';
+          document.querySelector('.flex.justify-between').appendChild(adminBtn);
+        }
+
+      } catch (error) {
+        alert('Error fetching user data: ' + error.message);
       }
     });
 
-    function logout() {
+    document.getElementById('logoutBtn').onclick = () => {
       auth.signOut().then(() => {
-        window.location.href = "index.html";
+        window.location.href = 'index.html';
       });
-    }
+    };
+
+    document.getElementById('profileBtn').onclick = () => {
+      window.location.href = 'profile.html';
+    };
   </script>
 </body>
 </html>
