@@ -1,4 +1,5 @@
 // firebase.js
+
 const firebaseConfig = {
   apiKey: "AIzaSyCE3veqwiTfCf5T4FEmNWPF2XrVxy0hFa8",
   authDomain: "kawseribnjamal-99d0f.firebaseapp.com",
@@ -12,6 +13,6 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Initialize services
-const auth = firebase.auth();
-const db = firebase.firestore();
+// Make auth and db global
+window.auth = firebase.auth();
+window.db = firebase.firestore();
