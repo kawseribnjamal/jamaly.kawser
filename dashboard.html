@@ -1,1 +1,44 @@
-<h1>Dashboard</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Kawser Secure Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+  <nav class="bg-purple-700 text-white px-6 py-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold">📊 Dashboard</h1>
+    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">Logout</button>
+  </nav>
+
+  <main class="p-6">
+    <h2 class="text-2xl font-semibold mb-4">Welcome, <span id="userEmail"></span>!</h2>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <a href="profile.html" class="bg-white shadow p-6 rounded-xl hover:shadow-lg">👤 View/Edit Profile</a>
+      <a href="files.html" class="bg-white shadow p-6 rounded-xl hover:shadow-lg">📁 Manage Files</a>
+      <a href="admin.html" id="adminLink" class="bg-white shadow p-6 rounded-xl hover:shadow-lg hidden">🛠️ Admin Panel</a>
+    </div>
+  </main>
+
+  <script src="firebase.js"></script>
+  <script>
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "index.html";
+      } else {
+        document.getElementById("userEmail").innerText = user.email;
+        if (user.uid === "cNux5HnalhZ9wj6uPDXDA8B6EE02") {
+          document.getElementById("adminLink").classList.remove("hidden");
+        }
+      }
+    });
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "index.html";
+      });
+    }
+  </script>
+</body>
+</html>
