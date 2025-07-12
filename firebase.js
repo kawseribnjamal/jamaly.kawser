@@ -1,20 +1,18 @@
 // firebase.js
-import { initializeApp } from \"https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js\";
-import { getAuth } from \"https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js\";
-import { getFirestore } from \"https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js\";
 
 const firebaseConfig = {
-  apiKey: \"AIzaSyCE3veqwiTfCf5T4FEmNWPF2XrVxy0hFa8\",
-  authDomain: \"kawseribnjamal-99d0f.firebaseapp.com\",
-  projectId: \"kawseribnjamal-99d0f\",
-  storageBucket: \"kawseribnjamal-99d0f.appspot.com\",
-  messagingSenderId: \"255855799684\",
-  appId: \"1:255855799684:web:5185b6049351e4a881c1d1\"
+  apiKey: "AIzaSyCE3veqwiTfCf5T4FEmNWPF2XrVxy0hFa8",
+  authDomain: "kawseribnjamal-99d0f.firebaseapp.com",
+  projectId: "kawseribnjamal-99d0f",
+  storageBucket: "kawseribnjamal-99d0f.appspot.com",
+  messagingSenderId: "255855799684",
+  appId: "1:255855799684:web:5185b6049351e4a881c1d1"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 
-window.auth = auth;
-window.db = db;
+// Initialize Firebase services
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
