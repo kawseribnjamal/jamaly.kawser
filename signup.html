@@ -41,7 +41,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
 
-  <!-- Your firebase.js config -->
+  <!-- Firebase config and initialization -->
   <script src="firebase.js"></script>
 
   <script>
@@ -82,7 +82,7 @@
         messageBox.textContent = '✅ Signup Successful! Redirecting to login...';
         messageBox.classList.remove('hidden');
 
-        // Redirect to login after 2 seconds
+        // Redirect after 2 seconds
         setTimeout(() => {
           window.location.href = 'index.html';
         }, 2000);
