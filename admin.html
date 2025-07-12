@@ -1,48 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel | Kawser Portal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Panel</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gray-100 min-h-screen">
-  <nav class="bg-purple-800 text-white px-6 py-4 flex justify-between items-center">
-    <h1 class="text-xl font-bold">🛠️ Admin Panel</h1>
-    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">Logout</button>
-  </nav>
+<body class="bg-gradient-to-br from-yellow-100 via-red-100 to-pink-100 min-h-screen flex flex-col items-center py-10">
+  <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-4xl w-full">
+    <h1 class="text-3xl font-bold mb-6 text-center text-yellow-700">Admin Panel</h1>
+    <div id="users-list" class="max-h-96 overflow-auto border rounded p-4 bg-gray-50"></div>
+    <div class="mt-6 flex justify-between">
+      <button id="logoutBtn" class="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700">Logout</button>
+      <button id="dashboardBtn" class="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700">Dashboard</button>
+    </div>
+  </div>
 
-  <main class="p-6">
-    <h2 class="text-lg font-semibold mb-4">Registered Users</h2>
-    <ul id="userList" class="bg-white p-4 rounded-xl shadow space-y-2"></ul>
-  </main>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
 
   <script src="firebase.js"></script>
+
   <script>
-    auth.onAuthStateChanged(user => {
-      if (!user || user.uid !== "cNux5HnalhZ9wj6uPDXDA8B6EE02") {
-        alert("Access denied.");
-        window.location.href = "index.html";
+    const adminUID = 'cNux5HnalhZ9wj6uPDXDA8B6EE02';
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        window.location.href = 'index.html';
         return;
       }
-      loadUsers();
+      if (user.uid !== adminUID) {
+        alert("❌ Access denied: You are not an admin!");
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      try {
+        const usersSnapshot = await db.collection('users').get();
+        const usersListDiv = document.getElementById('users-list');
+        usersListDiv.innerHTML = '';
+
+        usersSnapshot.forEach(doc => {
+          const userData = doc.data();
+          const userDiv = document.createElement('div');
+          userDiv.className = 'border-b py-2 last:border-none';
+          userDiv.innerHTML = `
+            <p><strong>Name:</strong> ${userData.firstName} ${userData.lastName}</p>
+            <p><strong>Email:</strong> ${userData.email}</p>
+            <p><strong>Gender:</strong> ${userData.gender}</p>
+            <p><strong>DOB:</strong> ${userData.dob}</p>
+            <p><strong>Phone:</strong> ${userData.phone}</p>
+          `;
+          usersListDiv.appendChild(userDiv);
+        });
+      } catch (error) {
+        alert("Error loading users: " + error.message);
+      }
     });
 
-    async function loadUsers() {
-      const userList = document.getElementById("userList");
-      const snapshot = await db.collection("users").get();
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const item = document.createElement("li");
-        item.className = "border p-3 rounded hover:bg-gray-50";
-        item.innerHTML = `<strong>${data.firstName || ""} ${data.lastName || ""}</strong> - ${data.email}`;
-        userList.appendChild(item);
+    document.getElementById('logoutBtn').onclick = () => {
+      auth.signOut().then(() => {
+        window.location.href = 'index.html';
       });
-    }
+    };
 
-    function logout() {
-      auth.signOut().then(() => window.location.href = "index.html");
-    }
+    document.getElementById('dashboardBtn').onclick = () => {
+      window.location.href = 'dashboard.html';
+    };
   </script>
 </body>
 </html>
