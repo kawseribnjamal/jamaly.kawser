@@ -1,1 +1,48 @@
-<h1>Admin Panel</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | Kawser Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <nav class="bg-purple-800 text-white px-6 py-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold">🛠️ Admin Panel</h1>
+    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">Logout</button>
+  </nav>
+
+  <main class="p-6">
+    <h2 class="text-lg font-semibold mb-4">Registered Users</h2>
+    <ul id="userList" class="bg-white p-4 rounded-xl shadow space-y-2"></ul>
+  </main>
+
+  <script src="firebase.js"></script>
+  <script>
+    auth.onAuthStateChanged(user => {
+      if (!user || user.uid !== "cNux5HnalhZ9wj6uPDXDA8B6EE02") {
+        alert("Access denied.");
+        window.location.href = "index.html";
+        return;
+      }
+      loadUsers();
+    });
+
+    async function loadUsers() {
+      const userList = document.getElementById("userList");
+      const snapshot = await db.collection("users").get();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const item = document.createElement("li");
+        item.className = "border p-3 rounded hover:bg-gray-50";
+        item.innerHTML = `<strong>${data.firstName || ""} ${data.lastName || ""}</strong> - ${data.email}`;
+        userList.appendChild(item);
+      });
+    }
+
+    function logout() {
+      auth.signOut().then(() => window.location.href = "index.html");
+    }
+  </script>
+</body>
+</html>
