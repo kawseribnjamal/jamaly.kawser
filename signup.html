@@ -66,10 +66,10 @@
       }
 
       try {
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const userCredential = await window.auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
-        await db.collection('users').doc(user.uid).set({
+        await window.db.collection('users').doc(user.uid).set({
           firstName,
           lastName,
           gender,
@@ -78,11 +78,9 @@
           email
         });
 
-        // Show success message
         messageBox.textContent = '✅ Signup Successful! Redirecting to login...';
         messageBox.classList.remove('hidden');
 
-        // Redirect after 2 seconds
         setTimeout(() => {
           window.location.href = 'index.html';
         }, 2000);
