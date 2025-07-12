@@ -32,25 +32,15 @@
     </form>
   </div>
 
-  <!-- Firebase scripts (non-module) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
+
+  <script src="firebase.js"></script>
 
   <script>
-    // Initialize Firebase (Use your config)
-    const firebaseConfig = {
-      apiKey: "AIzaSyCE3veqwiTfCf5T4FEmNWPF2XrVxy0hFa8",
-      authDomain: "kawseribnjamal-99d0f.firebaseapp.com",
-      projectId: "kawseribnjamal-99d0f",
-      storageBucket: "kawseribnjamal-99d0f.appspot.com",
-      messagingSenderId: "255855799684",
-      appId: "1:255855799684:web:5185b6049351e4a881c1d1"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
     const form = document.getElementById('signup-form');
 
     form.addEventListener('submit', e => {
@@ -91,13 +81,6 @@
           alert("❌ " + error.message);
         });
     });
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
-
-<script src="firebase.js"></script>
-
   </script>
 </body>
 </html>
