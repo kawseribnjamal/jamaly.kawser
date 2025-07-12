@@ -1,5 +1,4 @@
 // firebase.js
-
 const firebaseConfig = {
   apiKey: "AIzaSyCE3veqwiTfCf5T4FEmNWPF2XrVxy0hFa8",
   authDomain: "kawseribnjamal-99d0f.firebaseapp.com",
@@ -10,9 +9,7 @@ const firebaseConfig = {
   measurementId: "G-X8E7HD9CK"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Make auth and db global
 window.auth = firebase.auth();
 window.db = firebase.firestore();
