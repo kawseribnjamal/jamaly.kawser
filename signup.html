@@ -32,15 +32,28 @@
     </form>
   </div>
 
-  <script src="firebase.js" type="module"></script>
-  <script type="module">
-    import { auth, db } from './firebase.js';
-    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
-    import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+  <!-- Firebase scripts (non-module) -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+
+  <script>
+    // Initialize Firebase (Use your config)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCE3veqwiTfCf5T4FEmNWPF2XrVxy0hFa8",
+      authDomain: "kawseribnjamal-99d0f.firebaseapp.com",
+      projectId: "kawseribnjamal-99d0f",
+      storageBucket: "kawseribnjamal-99d0f.appspot.com",
+      messagingSenderId: "255855799684",
+      appId: "1:255855799684:web:5185b6049351e4a881c1d1"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
     const form = document.getElementById('signup-form');
 
-    form.addEventListener('submit', async e => {
+    form.addEventListener('submit', e => {
       e.preventDefault();
 
       const firstName = form.firstName.value.trim();
@@ -57,26 +70,26 @@
         return;
       }
 
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Save extra user data in Firestore
-        await setDoc(doc(db, 'users', user.uid), {
-          firstName,
-          lastName,
-          gender,
-          dob,
-          phone,
-          email
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          // Save extra user data in Firestore
+          return db.collection('users').doc(user.uid).set({
+            firstName,
+            lastName,
+            gender,
+            dob,
+            phone,
+            email
+          });
+        })
+        .then(() => {
+          alert("✅ Account created successfully! Please login.");
+          window.location.href = "index.html";
+        })
+        .catch(error => {
+          alert("❌ " + error.message);
         });
-
-        alert("✅ Account created successfully! Please login.");
-        window.location.href = "index.html";
-
-      } catch (error) {
-        alert("❌ " + error.message);
-      }
     });
   </script>
 </body>
