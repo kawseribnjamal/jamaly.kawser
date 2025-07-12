@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Sign Up - Kawser Secure Portal</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign Up - Kawser Secure Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body class="bg-gradient-to-br from-green-100 via-yellow-100 to-blue-100 min-h-screen flex items-center justify-center">
   <div class="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full">
@@ -36,71 +36,71 @@
     <div id="message-box" class="text-center mt-4 text-green-700 font-semibold hidden"></div>
   </div>
 
-<!-- Firebase Compat SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-<script>
-  // Initialize Firebase here (avoid separate firebase.js to reduce load issues)
-  const firebaseConfig = {
-    apiKey: "AIzaSyCE3veqwiTfCf5T4FEmNWPF2XrVxy0hFa8",
-    authDomain: "kawseribnjamal-99d0f.firebaseapp.com",
-    projectId: "kawseribnjamal-99d0f",
-    storageBucket: "kawseribnjamal-99d0f.appspot.com",
-    messagingSenderId: "255855799684",
-    appId: "1:255855799684:web:5185b6049351e4a881c1d1",
-    measurementId: "G-X8E7HD9CK"
-  };
+  <script>
+    // Initialize Firebase inside the page to avoid load order issues
+    const firebaseConfig = {
+      apiKey: "AIzaSyCE3veqwiTfCf5T4FEmNWPF2XrVxy0hFa8",
+      authDomain: "kawseribnjamal-99d0f.firebaseapp.com",
+      projectId: "kawseribnjamal-99d0f",
+      storageBucket: "kawseribnjamal-99d0f.appspot.com",
+      messagingSenderId: "255855799684",
+      appId: "1:255855799684:web:5185b6049351e4a881c1d1",
+      measurementId: "G-X8E7HD9CK"
+    };
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-  const signupForm = document.getElementById('signup-form');
-  const messageBox = document.getElementById('message-box');
+    const signupForm = document.getElementById('signup-form');
+    const messageBox = document.getElementById('message-box');
 
-  signupForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
-    const gender = document.getElementById('gender').value;
-    const dob = document.getElementById('dob').value;
-    const phone = document.getElementById('phone').value.trim();
-    const email = document.getElementById('signup-email').value.trim();
-    const password = document.getElementById('signup-password').value;
-    const confirmPassword = document.getElementById('confirm-password').value;
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const gender = document.getElementById('gender').value;
+      const dob = document.getElementById('dob').value;
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
 
-    if(password !== confirmPassword) {
-      alert('❌ Password and Confirm Password do not match!');
-      return;
-    }
+      if(password !== confirmPassword) {
+        alert('❌ Password and Confirm Password do not match!');
+        return;
+      }
 
-    try {
-      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-      const user = userCredential.user;
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
 
-      await db.collection('users').doc(user.uid).set({
-        firstName,
-        lastName,
-        gender,
-        dob,
-        phone,
-        email
-      });
+        await db.collection('users').doc(user.uid).set({
+          firstName,
+          lastName,
+          gender,
+          dob,
+          phone,
+          email
+        });
 
-      messageBox.textContent = '✅ Signup Successful! Redirecting to login...';
-      messageBox.classList.remove('hidden');
+        messageBox.textContent = '✅ Signup Successful! Redirecting to login...';
+        messageBox.classList.remove('hidden');
 
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 2000);
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 2000);
 
-    } catch (error) {
-      alert('❌ ' + error.message);
-    }
-  });
-</script>
+      } catch (error) {
+        alert('❌ ' + error.message);
+      }
+    });
+  </script>
 </body>
 </html>
