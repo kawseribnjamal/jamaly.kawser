@@ -1,57 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profile | Kawser Portal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-blue-50 min-h-screen p-6 font-sans">
-  <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-xl">
-    <h2 class="text-2xl font-bold mb-4 text-blue-700">👤 My Profile</h2>
-    <form id="profileForm" class="space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="text" id="firstName" placeholder="First Name" class="p-3 border rounded-xl" required>
-        <input type="text" id="lastName" placeholder="Last Name" class="p-3 border rounded-xl" required>
-        <input type="text" id="gender" placeholder="Gender" class="p-3 border rounded-xl">
-        <input type="date" id="dob" placeholder="Date of Birth" class="p-3 border rounded-xl">
-        <input type="tel" id="phone" placeholder="Mobile Number" class="p-3 border rounded-xl">
-        <input type="email" id="email" disabled class="p-3 border rounded-xl bg-gray-100">
-      </div>
-      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700">Update Profile</button>
+<body class="bg-gradient-to-br from-green-100 via-yellow-100 to-blue-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+    <h2 class="text-2xl font-bold mb-6 text-center text-green-700">Edit Profile</h2>
+    <form id="profile-form" class="space-y-4">
+      <input type="text" id="firstName" placeholder="First Name" class="p-3 border rounded-xl w-full" required />
+      <input type="text" id="lastName" placeholder="Last Name" class="p-3 border rounded-xl w-full" required />
+      <select id="gender" class="p-3 border rounded-xl w-full" required>
+        <option value="" disabled>Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="date" id="dob" class="p-3 border rounded-xl w-full" required />
+      <input type="tel" id="phone" placeholder="Mobile Number" class="p-3 border rounded-xl w-full" required />
+      <input type="email" id="email" placeholder="Email" class="p-3 border rounded-xl w-full" disabled />
+      <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700">Save Changes</button>
+      <button type="button" id="backBtn" class="mt-3 w-full text-center text-gray-600 hover:underline">← Back to Dashboard</button>
     </form>
   </div>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
+
   <script src="firebase.js"></script>
+
   <script>
-    const form = document.getElementById("profileForm");
-    auth.onAuthStateChanged(async (user) => {
-      if (!user) return window.location.href = "index.html";
-      const doc = await db.collection("users").doc(user.uid).get();
-      if (doc.exists) {
-        const data = doc.data();
-        document.getElementById("firstName").value = data.firstName || "";
-        document.getElementById("lastName").value = data.lastName || "";
-        document.getElementById("gender").value = data.gender || "";
-        document.getElementById("dob").value = data.dob || "";
-        document.getElementById("phone").value = data.phone || "";
-        document.getElementById("email").value = user.email;
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      try {
+        const docRef = db.collection('users').doc(user.uid);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) {
+          alert("User data not found!");
+          return;
+        }
+        const data = docSnap.data();
+        document.getElementById('firstName').value = data.firstName || '';
+        document.getElementById('lastName').value = data.lastName || '';
+        document.getElementById('gender').value = data.gender || '';
+        document.getElementById('dob').value = data.dob || '';
+        document.getElementById('phone').value = data.phone || '';
+        document.getElementById('email').value = data.email || '';
+      } catch (error) {
+        alert("Error loading profile: " + error.message);
       }
     });
 
-    form.addEventListener("submit", async (e) => {
+    document.getElementById('profile-form').addEventListener('submit', async e => {
       e.preventDefault();
       const user = auth.currentUser;
-      if (!user) return;
-      await db.collection("users").doc(user.uid).update({
-        firstName: form.firstName.value,
-        lastName: form.lastName.value,
-        gender: form.gender.value,
-        dob: form.dob.value,
-        phone: form.phone.value
-      });
-      alert("✅ Profile updated successfully");
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      const updatedData = {
+        firstName: document.getElementById('firstName').value.trim(),
+        lastName: document.getElementById('lastName').value.trim(),
+        gender: document.getElementById('gender').value,
+        dob: document.getElementById('dob').value,
+        phone: document.getElementById('phone').value.trim(),
+      };
+      try {
+        await db.collection('users').doc(user.uid).update(updatedData);
+        alert("✅ Profile updated successfully!");
+        window.location.href = 'dashboard.html';
+      } catch (error) {
+        alert("❌ Error updating profile: " + error.message);
+      }
     });
+
+    document.getElementById('backBtn').onclick = () => {
+      window.location.href = 'dashboard.html';
+    };
   </script>
 </body>
 </html>
