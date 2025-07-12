@@ -1,8 +1,8 @@
-/* style.css - Minimal custom styles (used with Tailwind) */
+/* style.css */
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #f9fafb; /* Light gray for fallback */
+  background-color: #f9fafb;
 }
 
 input, button, select {
@@ -11,7 +11,7 @@ input, button, select {
 
 input:focus, select:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3); /* purple highlight */
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
 }
 
 button:focus {
@@ -27,22 +27,18 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Responsive container */
 .container {
   max-width: 100%;
   margin: 0 auto;
   padding: 1rem;
 }
 
-/* Shadow utility */
 .card-shadow {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
-/* Rounded box */
 .rounded-box {
   border-radius: 1rem;
   padding: 1.5rem;
   background-color: white;
 }
-
