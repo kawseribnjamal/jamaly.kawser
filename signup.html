@@ -2,78 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Signup | Kawser Secure Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign Up | Kawser Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white shadow-2xl rounded-2xl p-10 max-w-lg w-full">
-    <h2 class="text-2xl font-bold text-center text-purple-700 mb-6">📝 Create New Account</h2>
-
+<body class="bg-gradient-to-br from-green-100 via-yellow-100 to-blue-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white shadow-xl rounded-2xl p-10 max-w-md w-full">
+    <h2 class="text-2xl font-bold text-center text-green-700 mb-6">📝 Create Account</h2>
     <form id="signup-form" class="space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <input type="text" id="firstName" placeholder="First Name" class="p-3 border rounded-xl" required />
         <input type="text" id="lastName" placeholder="Last Name" class="p-3 border rounded-xl" required />
-        <select id="gender" class="p-3 border rounded-xl col-span-1 md:col-span-2" required>
+        <select id="gender" class="p-3 border rounded-xl" required>
           <option value="" disabled selected>Select Gender</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
+          <option value="Other">Other</option>
         </select>
-        <input type="date" id="dob" placeholder="Date of Birth" class="p-3 border rounded-xl col-span-1 md:col-span-2" required />
-        <input type="tel" id="phone" placeholder="Mobile Number" class="p-3 border rounded-xl col-span-1 md:col-span-2" required />
-        <input type="email" id="signup-email" placeholder="Email" class="p-3 border rounded-xl col-span-1 md:col-span-2" required />
-        <input type="password" id="signup-password" placeholder="Password" class="p-3 border rounded-xl" required />
-        <input type="password" id="confirm-password" placeholder="Confirm Password" class="p-3 border rounded-xl" required />
+        <input type="date" id="dob" class="p-3 border rounded-xl" required />
       </div>
-
+      <input type="tel" id="phone" placeholder="Mobile Number" class="w-full p-3 border rounded-xl" required />
+      <input type="email" id="email" placeholder="Email" class="w-full p-3 border rounded-xl" required />
+      <input type="password" id="password" placeholder="Password" class="w-full p-3 border rounded-xl" required />
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" class="w-full p-3 border rounded-xl" required />
       <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700">Sign Up</button>
-      <a href="index.html" class="block text-center text-sm text-gray-600 hover:underline mt-2">← Back to Login</a>
+      <a href="index.html" class="block text-center text-gray-600 hover:underline mt-4">← Back to Login</a>
     </form>
   </div>
 
-  <script src="firebase.js"></script>
-  <script>
-    const signupForm = document.getElementById("signup-form");
+  <script src="firebase.js" type="module"></script>
+  <script type="module">
+    import { auth, db } from './firebase.js';
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+    import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
 
-    signupForm.addEventListener("submit", (e) => {
+    const form = document.getElementById('signup-form');
+
+    form.addEventListener('submit', async e => {
       e.preventDefault();
-      const firstName = document.getElementById("firstName").value;
-      const lastName = document.getElementById("lastName").value;
-      const gender = document.getElementById("gender").value;
-      const dob = document.getElementById("dob").value;
-      const phone = document.getElementById("phone").value;
-      const email = document.getElementById("signup-email").value;
-      const password = document.getElementById("signup-password").value;
-      const confirmPassword = document.getElementById("confirm-password").value;
+
+      const firstName = form.firstName.value.trim();
+      const lastName = form.lastName.value.trim();
+      const gender = form.gender.value;
+      const dob = form.dob.value;
+      const phone = form.phone.value.trim();
+      const email = form.email.value.trim();
+      const password = form.password.value;
+      const confirmPassword = form.confirmPassword.value;
 
       if (password !== confirmPassword) {
-        alert("❌ Passwords do not match");
+        alert("❌ Password and Confirm Password do not match!");
         return;
       }
 
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          const uid = userCredential.user.uid;
-          return firebase.firestore().collection("users").doc(uid).set({
-            uid,
-            email,
-            firstName,
-            lastName,
-            gender,
-            dob,
-            phone,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        })
-        .then(() => {
-          alert("✅ Account created successfully. You can now login.");
-          window.location.href = "index.html";
-        })
-        .catch((error) => alert("❌ " + error.message));
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Save extra user data in Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+          firstName,
+          lastName,
+          gender,
+          dob,
+          phone,
+          email
+        });
+
+        alert("✅ Account created successfully! Please login.");
+        window.location.href = "index.html";
+
+      } catch (error) {
+        alert("❌ " + error.message);
+      }
     });
   </script>
 </body>
