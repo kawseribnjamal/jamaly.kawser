@@ -1,1 +1,57 @@
-<h1>Profile Page</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile | Kawser Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 min-h-screen p-6 font-sans">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-xl">
+    <h2 class="text-2xl font-bold mb-4 text-blue-700">👤 My Profile</h2>
+    <form id="profileForm" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="text" id="firstName" placeholder="First Name" class="p-3 border rounded-xl" required>
+        <input type="text" id="lastName" placeholder="Last Name" class="p-3 border rounded-xl" required>
+        <input type="text" id="gender" placeholder="Gender" class="p-3 border rounded-xl">
+        <input type="date" id="dob" placeholder="Date of Birth" class="p-3 border rounded-xl">
+        <input type="tel" id="phone" placeholder="Mobile Number" class="p-3 border rounded-xl">
+        <input type="email" id="email" disabled class="p-3 border rounded-xl bg-gray-100">
+      </div>
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700">Update Profile</button>
+    </form>
+  </div>
+
+  <script src="firebase.js"></script>
+  <script>
+    const form = document.getElementById("profileForm");
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) return window.location.href = "index.html";
+      const doc = await db.collection("users").doc(user.uid).get();
+      if (doc.exists) {
+        const data = doc.data();
+        document.getElementById("firstName").value = data.firstName || "";
+        document.getElementById("lastName").value = data.lastName || "";
+        document.getElementById("gender").value = data.gender || "";
+        document.getElementById("dob").value = data.dob || "";
+        document.getElementById("phone").value = data.phone || "";
+        document.getElementById("email").value = user.email;
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      if (!user) return;
+      await db.collection("users").doc(user.uid).update({
+        firstName: form.firstName.value,
+        lastName: form.lastName.value,
+        gender: form.gender.value,
+        dob: form.dob.value,
+        phone: form.phone.value
+      });
+      alert("✅ Profile updated successfully");
+    });
+  </script>
+</body>
+</html>
